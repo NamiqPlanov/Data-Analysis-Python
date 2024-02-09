@@ -3,6 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from wordcloud import WordCloud
+from textblob import TextBlob
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 
 data=pd.read_csv('british airline(2012-2023)/british_airline.csv')
 '''
@@ -138,6 +141,7 @@ plt.xticks(color='blue',fontsize=11)
 plt.yticks(color='blue',fontsize=11)
 plt.show()
 '''
+'''
 data['Year flown']=data['date_flown'].dt.year
 data['Month flown']=data['date_flown'].dt.month
 seasonal_flights=data.groupby(['Year flown','Month flown']).size()
@@ -145,6 +149,60 @@ seasonal_flights.plot(linestyle='dashed',marker='o',color='green')
 plt.title('Analyzing seasonal trends in flights')
 plt.xlabel('Year and month',labelpad=13)
 plt.ylabel('Number of flights',labelpad=13)
+plt.show()
+'''
+'''
+def analyze_sentiment(text):
+    blob = TextBlob(str(text))
+    sentiment_score=blob.sentiment.polarity
+    if sentiment_score<0:
+        return 'Negative'
+    elif sentiment_score>0:
+        return 'Positive'
+    else:
+        return 'Neutral'
+
+data['sentiment']=data['content'].apply(analyze_sentiment)
+sentiment_count=data['sentiment'].value_counts()
+print(sentiment_count)
+'''
+'''
+def analyze_rating(text):
+    blob=TextBlob(str(text))
+    rating_score=blob.sentiment.polarity
+    if rating_score<0:
+        return 'Negative'
+    elif rating_score>0:
+        return 'Positive'
+    else:
+        return 'Neutral'
+data['sentiment']=data['content'].apply(analyze_rating)
+
+sentiment_info=data.groupby(['rating','sentiment']).size().unstack(fill_value=0)
+normalized_info = sentiment_info.div(sentiment_info.sum(axis=1),axis=0)*100
+print("Sentiment Distribution Across Different Ratings:")
+print(normalized_info)
+'''
+columns = ['seat_comfort', 'cabin_staff_service', 'food_beverages', 'ground_service', 'value_for_money', 'entertainment']
+'''
+target='rating'
+x_train,x_test,y_train,y_test=train_test_split(data[columns],data[target],test_size=0.3,random_state=43)
+rf_classifier = RandomForestClassifier(n_estimators=100,random_state=43)
+rf_classifier.fit(x_train,y_train)
+feature_importance=  rf_classifier.feature_importances_
+plt.bar(columns,feature_importance)
+plt.title('Feature Importance')
+plt.xlabel('Feature')
+plt.ylabel('Importance Score')
+plt.show()  
+'''
+target2 = 'recommended'
+x_train2,x_test2,y_trains2,y_test2=train_test_split(data[columns],data[target2],test_size=0.2,random_state=42)
+rf_classifier2 = RandomForestClassifier(n_estimators=100,random_state=42)
+rf_classifier2.fit(x_train2,y_trains2)
+feature_importance2 = rf_classifier2.feature_importances_
+plt.bar(columns,feature_importance2)
+plt.title('Feature Importance')  
 plt.show()
 
 
