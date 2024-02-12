@@ -2,6 +2,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error,accuracy_score, classification_report
+from sklearn.preprocessing import OneHotEncoder,LabelEncoder
+
 
 data=pd.read_csv('usage of social media/dummy_data.csv')
 '''
@@ -130,5 +135,88 @@ plt.xlabel('Age group')
 plt.ylabel('Average time spent')
 plt.show()
 '''
+'''
 info9=data['profession'].value_counts().head(1)
 print('The most popular profession among users is {}'.format(info9.index))
+'''
+print(data['interests'].unique())
+'''
+age_group=[0,30,40,50,60,float('inf')]
+age_group_str=['0-30','30-40','40-50','50-60','60+']
+data['age group']=pd.cut(data['age'],bins=age_group,labels=age_group_str,right=False)
+info10=data['age group'].value_counts()
+sns.barplot(x=info10.index,y=info10.values,color='green',fill=False)
+plt.title('Distribution of age group of users')
+plt.xlabel('Age group',labelpad=12)
+plt.ylabel('Number of users',labelpad=12)
+plt.show()
+'''
+'''
+unique_interests = data['interests'].unique()
+segment={}
+for interest in unique_interests:
+    segment[interest]=data[data['interests']==interest]
+for interest,segment_data in segment.items():
+    print('Interests:')
+    print(segment_data['gender'].value_counts())
+    print(segment_data['age'].describe())
+    print(segment_data['profession'].value_counts())
+    print('Average time spent:{}'.format(segment_data['time_spent'].mean()))
+
+sns.histplot(data=segment_data,x='time_spent',kde=True,bins=20)
+plt.title(f'Distribution of Time Spent on Platform - {interest}')
+plt.xlabel('Time Spent')
+plt.ylabel('Frequency')
+plt.show()
+'''
+'''
+income_int=[0,10000,12000,14000,16000,18000,float('inf')]
+income_str=['0-10k','10k-12k','12k-14k','14k-16k','16k-18k','18k+']
+data['income level']=pd.cut(data['income'],bins=income_int,labels=income_str,right=False)
+
+for income,segment_data in data.groupby(data['income level']):
+    print(f'Income level:{income}')
+    print('Average time spent:{}'.format(segment_data['time_spent'].mean()))
+
+    sns.histplot(data=segment_data,x='time_spent',bins=20,kde=True)
+    plt.title(f'Distribution of time spent on platform-{income}')
+    plt.xlabel('Time spent')
+    plt.ylabel('Frequency')
+    plt.show()
+'''
+'''
+x=pd.get_dummies(data.drop(columns=['time_spent']))
+y=data['time_spent']
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.3,random_state=42)
+model=LinearRegression()
+model.fit(x_train,y_train)
+y_predict=model.predict(x_test)
+mse=mean_squared_error(y_test,y_predict)
+print('Mean Squad Error:{}'.format(mse))
+'''
+'''
+a=pd.get_dummies(data.drop(columns=['indebt']))
+b=data['indebt']
+a_train,a_test,b_train,b_test=train_test_split(a,b,test_size=0.3,random_state=42)
+model=LinearRegression()
+model.fit(a_train,b_train)
+b_predict=model.predict(a_test)
+accuracy=accuracy_score(b_test,b_predict)
+print('Accuracy:{}'.format(accuracy))
+'''
+categorical_columns=['gender','platform','interests','profession']
+encoder=OneHotEncoder(drop='first')
+encoded_columns=pd.DataFrame(encoder.fit_transform(data[categorical_columns]))
+encoded_data=pd.concat([data.drop(columns=categorical_columns),encoded_columns],axis=1)
+
+label_encoder=LabelEncoder()
+for i in categorical_columns:
+    data[i]=label_encoder.fit_transform(data[i])
+
+corr1=numerical_columns.corr()
+print(corr1)
+sns.heatmap(corr1,annot=True)
+plt.title('Distribution the relationship between numerical columns with heatmap')
+plt.show()
+
+
