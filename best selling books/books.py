@@ -5,6 +5,11 @@ import seaborn as sns
 from sklearn.preprocessing import LabelEncoder,OneHotEncoder
 from sklearn.metrics import mean_squared_error,accuracy_score,classification_report
 from sklearn.model_selection import train_test_split
+from scipy.stats import f_oneway
+from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.arima.model import ARIMA
+from textblob import TextBlob
+
 
 data=pd.read_csv('best selling books/books_info.csv')
 '''
@@ -108,9 +113,79 @@ plt.show()
 info10=data['Sales_in_millions'].describe()
 print(info10)
 '''
-
+'''
 numerical_columns=data.select_dtypes(include='number')
 print(numerical_columns.corr())
 sns.heatmap(numerical_columns.corr(),annot=True)
 plt.title('Analyzing the relationship between numerical columns')
 plt.show()
+'''
+'''
+unique_languages=data['Language'].unique()
+sales_by_languages=[]
+for i in unique_languages:
+    sales_by_languages.append(data[data['Language']==i]['Sales_in_millions'])
+f_statistic,p_value=f_oneway(*sales_by_languages)
+alpha=0.06
+if p_value<alpha:
+    print('There is significant difference in sales between various languages')
+else:
+    print('There is no significant difference in sales between various languages')
+'''
+'''
+data['Translated']=data['Language']!='Original'
+data['Translated']=data['Translated'].replace({True:'Translated',False:'Original'})
+print(data['Translated'].tail(15))
+'''
+'''
+authors_split=data['Authors'].str.split(', ',expand=True)
+authors_split.columns=['Author_'+str(i) for i in range(1,authors_split.shape[1]+1)]
+authors_info=pd.concat([data,authors_split],axis=1)
+print(authors_info)
+'''
+
+data.set_index('First_Published',inplace=True)
+sales_info=data['Sales_in_millions']
+'''
+decomposition=seasonal_decompose(sales_info,model='additive',period=12)
+plt.subplot(411)
+plt.plot(sales_info,label='Original')
+plt.legend(loc='upper left')
+plt.subplot(412)
+plt.plot(decomposition.trend,label='Trend')
+plt.legend(loc='upper left')
+plt.subplot(413)
+plt.plot(decomposition.seasonal,label='Seasonal')
+plt.legend(loc='upper left')
+plt.subplot(414)
+plt.plot(decomposition.resid,label='Residual')
+plt.legend(loc='upper left')
+
+plt.tight_layout()
+plt.show()
+'''
+'''
+specific_year=1995
+filtered_data=data[data['First_Published'].dt.year>specific_year]
+print(filtered_data)
+'''
+'''
+specific_sales=77
+filtered_info=data[data['Sales_in_millions']<specific_sales]
+print(filtered_info)
+'''
+
+def analyze_title(text):
+    blob=TextBlob(str(text))
+    sentiment=blob.sentiment.polarity
+    if sentiment<0:
+        return 'Negative'
+    elif sentiment>0:
+        return 'Positive'
+    else:
+        return 'Neutral'
+data['sentiment']=data['Books'].apply(analyze_title)
+print(data['sentiment'].head(15))
+   
+
+
