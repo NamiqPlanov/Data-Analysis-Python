@@ -7,6 +7,10 @@ from statsmodels.tsa.arima.model import ARIMA
 from textblob import TextBlob
 from scipy.stats import f_oneway
 from wordcloud import WordCloud
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score,classification_report
+from sklearn.model_selection import train_test_split
+
 
 data=pd.read_csv('netflix dataset/netflix_titles.csv')
 '''
@@ -73,10 +77,70 @@ plt.pie(info3,labels=info3.index,autopct='%1.1f%%',textprops={'fontsize': 7})
 plt.title('Ploting a pie chart to visualize the distribution of rating')
 plt.show()
 '''
+'''
 all_text=' '.join(data['listed_in'].dropna())
 wordcloud1=WordCloud(width=800,height=400,background_color='white').generate(all_text)
 plt.imshow(wordcloud1,interpolation='bicubic')
 plt.axis('off')
 plt.show()
+'''
+
+data['added_year']=data['date_added'].dt.year
+data['added_month']=data['date_added'].dt.month
+data['added_day']=data['date_added'].dt.day
+data['added_month']=data['added_month'].map({
+    1:'January',
+    2:'February',
+    3:'March',
+    4:'April',
+    5:'May',
+    6:'June',
+    7:'July',
+    8:'August',
+    9:'September',
+    10:'October',
+    11:'November',
+    12:'December'
+})
+
+'''
+current_year=2024
+data['age_of_content']=current_year-data['release_year']
+print(data['age_of_content'].head(10))
+'''
+'''
+data['type']=data['type'].astype('str')
+label=['TV Show']
+data2=data['type'].isin(label)
+filtered_data=data[data2]
+print(filtered_data.head(10))
 
 
+label=['Movie']
+data3=data['type'].isin(label)
+filtered_data2=data[data3]
+print(filtered_data2.head(10))
+'''
+
+'''
+numerical_columns=data.select_dtypes(include='number')
+print(numerical_columns.describe())
+'''
+
+data['cast']=data['cast'].str.split(', ')
+data['listed_in']=data['listed_in'].str.split(', ')
+print(data['cast'])
+print('------------------------------')
+print(data['listed_in'])
+
+data= data.drop(['show_id', 'title', 'cast', 'date_added', 'description'], axis=1)
+data=pd.get_dummies(data,columns=['country','director','rating'])
+x=data.drop('type',axis=1)
+y=data['type']
+x_train,x_test,y_train,y_test=train_test_split(x,y,random_state=42,test_size=0.2)
+model=LogisticRegression()
+model.fit(x_train,y_train)
+y_prediction=model.predict(x_test)
+accuracy=accuracy_score(y_test,y_prediction)
+print('Accuracy:{}'.format(accuracy))
+print('Classification Report:\n{}'.format(classification_report(y_test,y_prediction)))
