@@ -9,6 +9,7 @@ from wordcloud import WordCloud
 from sklearn.metrics import accuracy_score,classification_report
 from sklearn.model_selection import train_test_split
 from scipy.stats import ttest_ind
+from textblob import TextBlob
 
 
 data=pd.read_csv('laptop analysis/best_buy_laptops_2024.csv')
@@ -79,6 +80,7 @@ plt.title('Analyzing relationship between brand and offers/price')
 plt.tight_layout()
 plt.show()
 '''
+'''
 sns.scatterplot(x='depth',y='width',data=data,alpha=0.7,color='green')
 plt.title('Visualisation the relationship between depth and width of laptops')
 plt.xlabel('Depth',labelpad=13)
@@ -86,6 +88,68 @@ plt.ylabel('Width',labelpad=13)
 plt.xticks(color='blue')
 plt.yticks(color='blue')
 plt.show()
+'''
+'''
+sns.histplot(data['aggregateRating/ratingValue'],kde=True,bins=15,color='green')
+plt.title('Visualizing the distribution of aggregateRating/ratingValue')
+plt.xlabel('aggregateRating/ratingValue',labelpad=14)
+plt.ylabel('',labelpad=14)
+plt.tight_layout()
+plt.show()
+'''
+'''
+sns.histplot(data['offers/price'],kde=True,bins=15,color='green')
+plt.title('Visualizing the distribution of offers/price')
+plt.xlabel('offers/price',labelpad=14)
+plt.ylabel('',labelpad=14)
+plt.tight_layout()
+plt.show()
+'''
+'''
+info4=data.groupby('brand')['aggregateRating/ratingValue'].mean().reset_index()
+sorted_info4=info4.sort_values(by='aggregateRating/ratingValue',ascending=False).head(10)
+barh1=plt.barh(sorted_info4['brand'],sorted_info4['aggregateRating/ratingValue'],color='green')
+for h in barh1:
+    plt.text(h.get_width(),h.get_y()+h.get_height()/2,f'{h.get_width()}',va='center',ha='left')
+plt.title('Comparing the average aggregateRating/ratingValue for each brand with horizontal barplot')
+plt.xlabel('Brand',labelpad=13)
+plt.ylabel('Average aggregateRating/ratingValue',labelpad=13)
+plt.show()
+'''
+'''
+sns.boxplot(x='brand',y='offers/price',data=data)
+plt.title('Visualizing the distribution of offers/price across different brands')
+plt.xlabel('Brands',labelpad=14)
+plt.ylabel('Offers/price',labelpad=14)
+plt.xticks(rotation=90)
+plt.tight_layout()
+plt.show()
+'''
+'''
+info5=data['offers/priceCurrency'].value_counts()
+plt.pie(info5,labels=info5.index,autopct='%1.2f%%',startangle=55)
+plt.title('The distribution of offers/priceCurrency')
+plt.show()
+'''
+def analyze_sentiment(text):
+    blob=TextBlob(text)
+    sentiment=blob.sentiment.polarity
+    if sentiment<0:
+        return 'Negative'
+    elif sentiment==0:
+        return 'Neutral'
+    else:
+        return 'Positive'
+data['Sentiment 1']=data['features/0/description'].apply(analyze_sentiment)
+data['Sentiment 2']=data['features/1/description'].apply(analyze_sentiment)
+#print(data['Sentiment 1'].head(15))
+#print(data['Sentiment 2'].head(10))
+data['area']=data['width']*data['depth']
+#print(data['area'].head(10))
+onehot=OneHotEncoder()
+onehot_data=pd.DataFrame(onehot.fit_transform(data[categorical_colums]))
+onehot_data_normalized=pd.concat([data.drop(columns=categorical_colums),onehot_data],axis=1)
+print(onehot_data_normalized)
     
                  
             
