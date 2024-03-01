@@ -10,6 +10,9 @@ from sklearn.metrics import accuracy_score,classification_report
 from sklearn.model_selection import train_test_split
 from scipy.stats import ttest_ind
 from textblob import TextBlob
+from scipy.stats import f_oneway
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
 
 
 data=pd.read_csv('laptop analysis/best_buy_laptops_2024.csv')
@@ -149,7 +152,47 @@ data['area']=data['width']*data['depth']
 onehot=OneHotEncoder()
 onehot_data=pd.DataFrame(onehot.fit_transform(data[categorical_colums]))
 onehot_data_normalized=pd.concat([data.drop(columns=categorical_colums),onehot_data],axis=1)
-print(onehot_data_normalized)
-    
-                 
-            
+#print(onehot_data_normalized)
+'''
+brand_ratings={}
+for brand in data['brand'].unique():
+    brand_ratings[brand]=data[data['brand']==brand]['aggregateRating/ratingValue']   
+f_info,p_value=f_oneway(*brand_ratings.values())
+print('Test results:\n')
+print('F-statistics:\n{}'.format(f_info))
+print('P-value:\n{}'.format(p_value))
+alpha=0.05
+if p_value<alpha:
+    print('There is significant difference in rating between brands')
+else:
+    print('There is significant difference in rating between brands')
+print('----------------------------------------------------------------')
+brand_ratings2={}
+for brand2 in data['brand'].unique():
+    brand_ratings2[brand2]=data[data['brand']==brand2]['offers/price']
+f_info2,p_value2=f_oneway(*brand_ratings2.values())
+alpha2=0.06
+print('Anova test results:\n')
+print('F-statistics:\n{}'.format(f_info2))
+print('P-value:\n{}'.format(p_value2)) 
+if p_value2<alpha2:
+    print('There is significant difference in offers/price between brands')
+else:
+    print('There is no significant difference in offers/price between brands')
+'''
+x=data.drop(['offers/price', 'depth', 'width', 'features/0/description', 'features/1/description'],axis=1)
+x=pd.get_dummies(x)
+y=data['offers/price']
+x_train,x_test,y_train,y_test=train_test_split(x,y,random_state=42,test_size=0.2)
+model=LinearRegression()
+model.fit(x_train,y_train)
+y_predict_train=model.predict(x_train)
+y_predict_test=model.predict(x_test)
+trains_rmse=mean_squared_error(y_train,y_predict_train,squared=False)
+test_rmse=mean_squared_error(y_test,y_predict_test,squared=False)
+r2_train=r2_score(y_train,y_predict_train)
+r2_test=r2_score(y_test,y_predict_test)
+print('Train Rmse-{}'.format(trains_rmse))
+print('Test RMSE-{}'.format(test_rmse))
+print('R2 Train-{}'.format(r2_train))
+print('R2 Score-{}'.format(r2_test))
