@@ -36,7 +36,9 @@ for a in range(len(data['Route'])):
     else:
         if pd.isnull(data.at[a,'Route']):
             data.at[a,'Route']='Khanoy-Warshava'
+            
 data=data.drop('Recommended',axis=1)
+
 for i in range(len(data['Aircraft'])):
     if i%2==0:
         if pd.isnull(data.at[i,'Aircraft']):
@@ -51,6 +53,7 @@ for i in range(len(data['Verified'])):
     else:
         if pd.isnull(data.at[i,'Verified']):
             data.at[i,'Verified']=0
+
 
 
 
@@ -218,6 +221,7 @@ onehot_normalized=pd.concat([data.drop(columns=categorical_columns),onehot_encod
 
 info2=data['Type Of Traveller'].value_counts()
 print(info2)
+'''
 barplot1=plt.bar(info2.index,info2.values,color='blue')
 for bar1 in barplot1:
     plt.text(bar1.get_x()+bar1.get_width()/2,bar1.get_height(),f'{bar1.get_height()}',va='bottom',ha='center')
@@ -225,9 +229,10 @@ plt.title('Analyzing the distribution of Traveller type')
 plt.xlabel('Traveller type',labelpad=16)
 plt.ylabel('Number of each type',labelpad=16)
 plt.show()
-
+'''
 
 info3=data['Seat Type'].value_counts()
+'''
 barplot2=plt.bar(info3.index,info3.values,color='blue')
 for bar2 in barplot2:
     plt.text(bar2.get_x()+bar2.get_width()/2,bar2.get_height(),f'{bar2.get_height()}',va='bottom',ha='center')
@@ -235,6 +240,27 @@ plt.title('Analyzing the distribution of Seat type')
 plt.xlabel('Seat type',labelpad=16)
 plt.ylabel('Number of each seat type',labelpad=16)
 plt.show()
+'''
+'''
+all_text=' '.join(data['Review Body'].dropna())
+wordcloud=WordCloud(width=800,height=500,background_color='white').generate(all_text)
+plt.imshow(wordcloud,interpolation='bicubic')
+plt.axis('off')
+plt.show()
+'''
+arr_category=data[['Author','Country','Aircraft']]
+target=data['Rating']
+arr_encoded=pd.get_dummies(arr_category,drop_first=True)
+x_train,x_test,y_train,y_test=train_test_split(arr_encoded,target,random_state=42,test_size=0.3)
+model=LinearRegression()
+model.fit(x_train,y_train)
+prediction=model.predict(x_test)
+mse=mean_squared_error(y_test,prediction)
+print('Mean Squared Error for rating-{}'.format(mse))
+sns.lineplot(x=range(len(y_test)),y=y_test.values,label='Actual Rating')
+sns.lineplot(x=range(len(prediction)),y=prediction,label='Predicted Rating')
+plt.title('Actual vs Predicted Ratings')
+plt.legend(loc='upper right')
+plt.show()
 
-info3=data['Route'].value_counts()
-print(info3)
+
