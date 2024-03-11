@@ -12,14 +12,14 @@ from sklearn.metrics import mean_squared_error
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 data=pd.read_csv('Qatar Airways Analysis/qatar_airways.csv')
-'''
+
 print('Number of columns-{}'.format(data.shape[1]))
 print('Number of rows-{}'.format(data.shape[0]))
 if data.isnull().values.any()==True:
     print('\n{}'.format(data.isnull().sum()))
 else:
     print('There is no missing value')
-'''
+
 
 for i in range(len(data['Type Of Traveller'])):
     if i%2==0:
@@ -70,15 +70,15 @@ data=data.dropna()
 data['Rating']=data['Rating'].astype('int')
 data['Max Rating']=data['Max Rating'].astype('int')
 numerical_columns=data.select_dtypes(include='number')
-#print(numerical_columns.describe())
-'''
+print(numerical_columns.describe())
+
 sns.histplot(x='Rating',data=data,binwidth=5,bins=20,kde=True,color='green',shrink=.7)
 plt.title('Visualizing the distribution of ratings')
 plt.xlabel('Ratings',labelpad=15)
 plt.ylabel('',labelpad=16)
 plt.grid(True)
 plt.show()
-'''
+
 
 
 
@@ -109,7 +109,7 @@ data['Date Month']=data['Date Month'].map({
     11:'November',
     12:'December'
 })
-'''
+
 info1=data.groupby('Date Year')['Rating'].mean().reset_index()
 sns.barplot(x='Date Year',y='Rating',data=info1,color='grey')
 plt.title('Analyzing the distribution of ratings over time')
@@ -117,11 +117,11 @@ plt.xlabel('Date',labelpad=16)
 plt.ylabel('Rating',labelpad=16)
 plt.grid()
 plt.show()
-'''
+
 info2=data.groupby('Country')['Rating'].mean().reset_index()
 sorted_info2=info2.sort_values(by='Rating',ascending=False).head(15)
-#print(sorted_info2)
-'''
+print(sorted_info2)
+
 sns.barplot(x='Country',y='Rating',data=sorted_info2,color='green')
 plt.title('Exploring the distribution of ratings by country')
 plt.xlabel('Country',labelpad=16)
@@ -129,12 +129,12 @@ plt.ylabel('Rating',labelpad=16)
 plt.xticks(fontsize=9)
 plt.grid()
 plt.show()
-'''
-'''
+
+
 sns.scatterplot(x='Rating',y='Max Rating',data=data,color='blue',alpha=0.5)
 plt.title('Investigating the relationship between Rating and Max Rating')
 plt.show()
-'''
+
 
 def sentiment_analysis(text):
     textblob=TextBlob(text)
@@ -146,14 +146,10 @@ def sentiment_analysis(text):
     else:
         return 'Positive'
 data['Review sentiment']=data['Review Body'].apply(sentiment_analysis)
-#print(data['Review sentiment'].head(15))
-'''
-model1=SentimentIntensityAnalyzer()
-def sentiment_score(obj):
-    return model1.polarity_scores(obj)['compound']
-data['Sentiment Score']=data['Review Body'].apply(sentiment_score)
-#print(data['Sentiment Score'].head(6))
-'''
+print(data['Review sentiment'].head(15))
+
+
+
 
 data['Date Published Month']=data['Date Published'].dt.month
 data['Date Published Year']=data['Date Published'].dt.year
@@ -217,11 +213,11 @@ categorical_columns=['Type Of Traveller', 'Seat Type', 'Route', 'Aircraft']
 onehot=OneHotEncoder()
 onehot_encoder=pd.DataFrame(onehot.fit_transform(data[categorical_columns]))
 onehot_normalized=pd.concat([data.drop(columns=categorical_columns),onehot_encoder],axis=1)
-#print(onehot_normalized.head(5))
+print(onehot_normalized.head(5))
 
 info2=data['Type Of Traveller'].value_counts()
 print(info2)
-'''
+
 barplot1=plt.bar(info2.index,info2.values,color='blue')
 for bar1 in barplot1:
     plt.text(bar1.get_x()+bar1.get_width()/2,bar1.get_height(),f'{bar1.get_height()}',va='bottom',ha='center')
@@ -229,10 +225,10 @@ plt.title('Analyzing the distribution of Traveller type')
 plt.xlabel('Traveller type',labelpad=16)
 plt.ylabel('Number of each type',labelpad=16)
 plt.show()
-'''
+
 
 info3=data['Seat Type'].value_counts()
-'''
+
 barplot2=plt.bar(info3.index,info3.values,color='blue')
 for bar2 in barplot2:
     plt.text(bar2.get_x()+bar2.get_width()/2,bar2.get_height(),f'{bar2.get_height()}',va='bottom',ha='center')
@@ -240,14 +236,14 @@ plt.title('Analyzing the distribution of Seat type')
 plt.xlabel('Seat type',labelpad=16)
 plt.ylabel('Number of each seat type',labelpad=16)
 plt.show()
-'''
-'''
+
+
 all_text=' '.join(data['Review Body'].dropna())
 wordcloud=WordCloud(width=800,height=500,background_color='white').generate(all_text)
 plt.imshow(wordcloud,interpolation='bicubic')
 plt.axis('off')
 plt.show()
-'''
+
 arr_category=data[['Author','Country','Aircraft']]
 target=data['Rating']
 arr_encoded=pd.get_dummies(arr_category,drop_first=True)
@@ -263,4 +259,5 @@ plt.title('Actual vs Predicted Ratings')
 plt.legend(loc='upper right')
 plt.show()
 
-
+data_copy=data.copy()
+data_copy.to_csv('Qatar Airways modified.csv',index=False)
