@@ -6,12 +6,13 @@ from sklearn.preprocessing import OneHotEncoder,LabelEncoder
 from textblob import TextBlob
 from wordcloud import WordCloud
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error,mean_absolute_error
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from collections import Counter
+from sklearn.linear_model import LinearRegression
 
 data=pd.read_csv('airline reviews/airlines_reviews.csv')
 '''
@@ -20,7 +21,7 @@ print('Is there any missing value?{}'.format(data.isnull().values.any()))
 print(data.isnull().sum())
 '''
 data['Review Date']=pd.to_datetime(data['Review Date'],errors='coerce')
-data['Month Flown']=data['Month Flown'].astype('category')
+
 numerical_columns=data.select_dtypes(include='number')
 #print(numerical_columns.describe())
 '''
@@ -93,7 +94,7 @@ def sentiment_analysis(text):
         return 'Positive'
 data['Reviews_sentiment']=data['Reviews'].apply(sentiment_analysis)
 #print(data['Reviews_sentiment'].head(10))
-
+'''
 reviews=data['Reviews']
 
 def gorupping_words(text):
@@ -116,3 +117,71 @@ positive_word_count=sum(word_freq[word] for word in positive_words)
 negative_words_count=sum(word_freq[word2] for word2 in negative_words)
 print('Positive words count-{}'.format(positive_word_count))
 print('Negative words count-{}'.format(negative_words_count))
+'''
+data['Review date-month']=data['Review Date'].dt.month
+
+
+data['Review date-month']=data['Review date-month'].map({
+    1:'January',
+    2:'February',
+    3:'March',
+    4:'April',
+    5:'May',
+    6:'June',
+    7:'July',
+    8:'August',
+    9:'September',
+    10:'October',
+    11:'November',
+    12:'December'
+})
+'''
+info4=data.groupby('Review date-month').size().reset_index(name='Overall Rating')
+plt.plot(info4['Review date-month'],info4['Overall Rating'],marker='o',linestyle='-')
+plt.title('Analyzing trends in overall ratings over time ')
+plt.grid()
+plt.show()
+'''
+data['Month Flown']=pd.to_datetime(data['Month Flown'],errors='coerce')
+data['Month Flown-month']=data['Month Flown'].dt.month
+data['Month Flown-month']=data['Month Flown-month'].map({
+    1:'January',
+    2:'February',
+    3:'March',
+    4:'April',
+    5:'May',
+    6:'June',
+    7:'July',
+    8:'August',
+    9:'September',
+    10:'October',
+    11:'November',
+    12:'December'
+})
+'''
+info5=data.groupby('Month Flown-month')['Overall Rating'].mean().reset_index()
+sorted_info5=info5.sort_values(by='Month Flown-month')
+plt.plot(sorted_info5['Month Flown-month'],sorted_info5['Overall Rating'],linestyle='-',marker='o')
+plt.title('Analyzing seasonal patterns in rating over Month Flown')
+plt.show()
+'''
+
+arr1=data[['Airline','Type of Traveller','Class',]]
+target_data=data['Overall Rating']
+arr_encoded=pd.get_dummies(arr1,drop_first=True)
+x_train,x_test,y_train,y_test=train_test_split(arr_encoded,target_data,random_state=42,test_size=0.3)
+model=LinearRegression()
+model.fit(x_train,y_train)
+prediction=model.predict(x_test)
+'''
+sns.lineplot(x=range(len(y_test)),y=y_test.values,label='Actual Rating')
+sns.lineplot(x=range(len(prediction)),y=prediction,label='Predicted Rating')
+plt.title('Actual vs Predicted Ratings')
+plt.legend(loc='upper right')
+plt.show()
+'''
+
+rmse=mean_squared_error(y_test,prediction,squared=False)
+mae=mean_absolute_error(y_test,prediction)
+print('Root Mean Squared Error-{}'.format(rmse))
+print('Mean Absolute Error-{}'.format(mae))
