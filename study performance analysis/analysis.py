@@ -11,22 +11,22 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 
 data=pd.read_csv('study performance analysis/study_performance.csv')
-#print('Number of rows-{}'.format(data.shape[0]))
-#print('Number of columns-{}'.format(data.shape[1]))
-#print('Is there any missing value-{}'.format(data.isnull().values.any()))
-'''
+print('Number of rows-{}'.format(data.shape[0]))
+print('Number of columns-{}'.format(data.shape[1]))
+print('Is there any missing value-{}'.format(data.isnull().values.any()))
+
 print('Numerical analysis for math score:\n{}'.format(data['math_score'].describe()))
 print('Numerical analysis for reading score:\n{}'.format(data['reading_score'].describe()))
 print('Numerical analysis for writing score:\n{}'.format(data['writing_score'].describe()))
-'''
-'''
+
+
 sns.histplot(x='math_score',data=data,kde=True,color='green',bins=15,binwidth=5)
 plt.title('Visualisation the distribution of math score')
 plt.xlabel('Math score',labelpad=14)
 plt.ylabel('Count',labelpad=14)
 plt.show()
-'''
-'''
+
+
 sns.histplot(x='reading_score',data=data,kde=True,color='grey',element='step',bins=25,shrink=.5)
 plt.title('Visualisation the distribution of reading score')
 plt.xlabel('Reading score',labelpad=14)
@@ -38,8 +38,8 @@ plt.title('Visualisation the distribution of writing score')
 plt.xlabel('Writing score',labelpad=14)
 plt.ylabel('Count',labelpad=14)
 plt.show()
-'''
-'''
+
+
 info1=data['gender'].value_counts()
 barplot1=plt.bar(info1.index,info1.values,color='blue',fill=False)
 for bar1 in barplot1:
@@ -69,23 +69,23 @@ plt.title('Analyzing distribution of level of education')
 plt.xlabel('Level of education',labelpad=14)
 plt.ylabel('Number of each education level',labelpad=14)
 plt.show()
-'''
-'''
+
+
 sns.scatterplot(x='math_score',y='reading_score',data=data,color='green',alpha=0.9)
 plt.title('Relationship between Math and Reading scores')
 plt.show()
-'''
+
 numerical_columns=data.select_dtypes(include='number')
-'''
+
 print(numerical_columns.corr())
 sns.heatmap(numerical_columns.corr(),annot=True,cmap='coolwarm')
 plt.title('Analyzing the correlation matrix between numerical columns with heatmap')
 plt.show()
-'''
+
 
 data['Total score']=data['math_score']+data['reading_score']+data['writing_score']
 
-'''
+
 info4=data.groupby('gender')['Total score'].mean().reset_index()
 sns.barplot(x='gender',y='Total score',data=info4,color='green')
 plt.title('Analyzing the average scores for each gender')
@@ -109,8 +109,8 @@ plt.xlabel('Lunch',labelpad=16)
 plt.ylabel('Average total score',labelpad=16)
 plt.xticks(rotation=45,fontsize=9)
 plt.show()
-'''
-'''
+
+
 education_level_ratings={}
 for i in data['parental_level_of_education'].unique():
     education_level_ratings[i]=data[data['parental_level_of_education']==i]['Total score']
@@ -133,8 +133,7 @@ if p_value2<alpha2:
     print('There is significant difference in total score between complted test course and not completed test courses')
 else:
     print('There is no significant difference in total score between complted test course and not completed test courses')
-'''
-'''
+
 ethnicity={}
 for a in data['race_ethnicity'].unique():
     ethnicity[a]=data[data['race_ethnicity']==a]['Total score']
@@ -144,8 +143,8 @@ if p_value3<alpha3:
     print('There is significant difference in total score between ethnicity groups')
 else:
     print('There is no significant difference in total score between ethnicity groups')
-    '''
-'''
+    
+
 def prediction_data(info):
     arr2=data[['gender','lunch','race_ethnicity','parental_level_of_education']]
     target=data[info+'_score']
@@ -165,7 +164,7 @@ def prediction_data(info):
 
 prediction_data('math')
 prediction_data('writing')
-'''
+
 
 
 
