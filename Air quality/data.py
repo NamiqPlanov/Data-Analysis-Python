@@ -4,6 +4,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import OneHotEncoder,LabelEncoder
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error,mean_squared_error
+
 
 data=pd.read_csv('Air quality/Air_Quality.csv')
 #print('Number of registered IDs-{}'.format(data.shape[0]))
@@ -22,7 +25,7 @@ data['Start_Date']=pd.to_datetime(data['Start_Date'],format='%d/%m/%Y',errors='c
 
 
 
-filtered_data_value=[x for x in data['Data Value'] if 5<=x<=45]
+#filtered_data_value=[x for x in data['Data Value'] if 5<=x<=45]
 '''
 sns.histplot(filtered_data_value,kde=True,bins=15,binwidth=4,color='green')
 plt.gca().set_facecolor('grey')
@@ -32,9 +35,9 @@ plt.ylabel('Count',labelpad=14)
 plt.grid()
 plt.show()
 '''
-info1=data['Name'].unique()
+#info1=data['Name'].unique()
 #print(info1)
-info2=data['Name'].value_counts()
+#info2=data['Name'].value_counts()
 #print(info2)
 '''
 info3=data['Geo Type Name'].value_counts()
@@ -84,4 +87,35 @@ data['Start Month']=data['Start Month'].map({
     12:'December'
 })
 data['Start Year']=data['Start_Date'].dt.year
-print(data['Start Year'].head(10))
+#data['Start Year']=data['Start Year'].astype('int')
+
+
+arr1=data[['Geo Type Name','Geo Place Name','Name']]
+data['Data Value']=data['Data Value'].astype('int64')
+target=data['Data Value']
+arr_encoded=pd.get_dummies(arr1,drop_first=True)
+x_train,x_test,y_train,y_test=train_test_split(arr_encoded,target,random_state=42,test_size=0.3)
+model=LinearRegression()
+model.fit(x_train,y_train)
+prediction=model.predict(x_test)
+'''
+sns.lineplot(x=range(len(y_test)),y=y_test.values,label='Actual data')
+sns.lineplot(x=range(len(prediction)),y=prediction,label='Predicted data')
+plt.title('Actual vs Predicted data')
+plt.legend(loc='upper right')
+plt.show()
+'''
+
+rmse=mean_squared_error(y_test,prediction,squared=False)
+mae=mean_absolute_error(y_test,prediction)
+#print('Root mean squared error-{}'.format(rmse))
+#print('Mean Absolute Error-{}'.format(mae))
+
+
+
+'''
+info6=data.groupby('Start Year')['Data Value'].mean().reset_index()
+plt.plot(info6['Start Year'],info6['Data Value'],linestyle='-',marker='o')
+plt.title('Analyzing seasonal trends in Data Value over Years')
+plt.show()
+'''
