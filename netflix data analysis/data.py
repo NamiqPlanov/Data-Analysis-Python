@@ -67,10 +67,16 @@ plt.pie(info1,labels=info1.index,autopct='%3.2f%%')
 plt.title('Generating a pie chart to visualize the distribution of type')
 plt.show()
 '''
-
+'''
 all_text=' '.join(data['description'].dropna())
 wordcloud1=WordCloud(width=800,height=400,background_color='white').generate(all_text)
 plt.imshow(wordcloud1,interpolation='bicubic')
 plt.title('Displaying most used words in description')
 plt.axis('off')
 plt.show()
+'''
+data['Movie?']=data['type']=='Movie'
+data['Tv Show?']=data['type']=='TV Show'
+print(data['Movie?'].head(10))
+print(data['Tv Show?'].head(10))
+
