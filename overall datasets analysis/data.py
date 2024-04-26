@@ -8,6 +8,7 @@ from wordcloud import WordCloud
 from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import Counter
 from textblob import TextBlob
+from sklearn.linear_model import LinearRegression
 
 data=pd.read_csv('overall datasets analysis/kaggle-raw1.csv')
 #print('Number of registered datasets before removing missing value-{}'.format(data.shape[0]))
@@ -172,5 +173,18 @@ def analyze_text(str1):
     
 data['Author_name-sentiment']=data['Author_name'].apply(analyze_text)
 data['Dataset_name-sentiment']=data['Dataset_name'].apply(analyze_text)
-print(data['Author_name-sentiment'].head(10))
-print(data['Dataset_name-sentiment'].head(10))
+#print(data['Author_name-sentiment'].head(10))
+#print(data['Dataset_name-sentiment'].head(10))
+
+arr1=data[['Medals']]
+target=data['Usability']
+arr1_encoded=pd.get_dummies(arr1,drop_first=True)
+x_train,x_test,y_train,y_test=train_test_split(arr1_encoded,target,random_state=42,test_size=0.3)
+model=LinearRegression()
+model.fit(x_train,y_train)
+prediction=model.predict(x_test)
+
+sns.lineplot(x=range(len(y_test)),y=y_test.values,label='Actual data',color='green')
+sns.lineplot(x=range(len(prediction)),y=prediction,label='Predicted data',color='blue')
+plt.title('Figuring out the actual data and predicted data based on Usability of datasets')
+plt.show()
