@@ -106,5 +106,28 @@ def sentiment_analysis(text):
         return 'Neutral'
 data['Exterior color sentiment']=data['exterior_color'].apply(sentiment_analysis)
 data['Interior color sentiment']=data['interior_color'].apply(sentiment_analysis)
-print(data['Exterior color sentiment'].head(10))
-print(data['Interior color sentiment'].head(10))
+#print(data['Exterior color sentiment'].head(10))
+#print(data['Interior color sentiment'].head(10))
+'''
+countplot1=sns.countplot(x='city',data=data,hue='fuel_type')
+for i in countplot1.containers:
+    countplot1.bar_label(i)
+plt.title('Analyzing the market share among cities')
+plt.xlabel('Cities',labelpad=14)
+plt.ylabel('Total number of cars',labelpad=14)
+plt.legend(loc='upper right')
+plt.show()
+'''
+competitors=['Audi','Alfa Romeo','Hyundai','Toyota']
+competitors_info=data[data['brand'].isin(competitors)]
+sns.barplot(x='brand',y='price',data=competitors_info,color='green')
+plt.title('The comparision of prices among competeting brands')
+plt.xlabel('Brands',labelpad=14)
+plt.ylabel('Prices',labelpad=14)
+plt.show()
+
+sns.barplot(x='brand',y='kilometers',data=competitors_info,color='grey')
+plt.title('The comparision of driven kilometers among competeting brands')
+plt.xlabel('Brands',labelpad=14)
+plt.ylabel('Driven kilometers',labelpad=14)
+plt.show()
