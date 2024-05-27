@@ -116,7 +116,21 @@ info11=data['experience_level'].unique()
 salary1=[data[data['experience_level']==level]['salary'] for level in info11]
 ttest,p_value=f_oneway(*salary1)
 alpha=0.05
-if p_value<alpha:
-    print('There is significant difference in salary between various experience levels')
-else:
-    print('There is no significant difference in salary between various experience levels')
+#if p_value<alpha:
+#    print('There is a significant difference in salary between various experience levels')
+#else:
+#    print('There is no significant difference in salary between various experience levels')
+
+
+avg_salary_per_year=data.groupby(['job_title','work_year'])['salary_in_usd'].mean().reset_index()
+pivot_table=avg_salary_per_year.pivot(index='job_title',columns='work_year',values='salary_in_usd')
+growth_in_salary=pivot_table.pct_change(axis='columns')
+avg_growth_rate=growth_in_salary.mean(axis=1).sort_values(ascending=False)
+top_jobs=avg_growth_rate.head(8)
+
+top_jobs.plot(kind='bar',color='grey')
+plt.title('Figuring out the top 15 jobs for salary growth')
+plt.xlabel('Jobs',labelpad=14)
+plt.ylabel('Work years',labelpad=14)
+plt.xticks(rotation=360,fontsize=7)
+plt.show()
