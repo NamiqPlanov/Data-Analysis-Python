@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import sklearn
 
 data=pd.read_csv('car sales report/car sales.csv')
 
@@ -171,7 +172,7 @@ info9=data.groupby('Month').size().reset_index(name='Total Sales')
 print(info9)
 plt.plot(info9['Month'],info9['Total Sales'],marker='x',color='green',linestyle='dotted')
 plt.title('Distribution of trends of sales over monthes')
-plt.xlabel('Monthes')
+plt.xlabel('Months')
 plt.ylabel('Total Sales')
 plt.show()
 
