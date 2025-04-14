@@ -205,3 +205,7 @@ plt.xlabel('Devices')
 plt.ylabel('Number of Transactions')
 plt.legend(loc='upper right')
 plt.show()
+
+
+datacopied=data.copy()
+datacopied.to_csv('BankTransactions.csv',index=False)
