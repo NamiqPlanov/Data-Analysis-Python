@@ -5,6 +5,15 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from scipy.stats import f_oneway
+from wordcloud import WordCloud
+import nltk
+import string
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from collections import Counter
+
+
+
 
 data=pd.read_csv('TwitterAnalysis/Tweets.csv')
 
@@ -117,3 +126,67 @@ info7=data.groupby(['airline_sentiment','user_timezone']).size().reset_index(nam
 top_timezones = info7.sort_values(by='Total Tweets',ascending=False).head(10)
 #print(top_timezones)
 
+info8 = data['airline_sentiment'].value_counts()
+#plt.pie(info8,labels=info8.index,autopct='%4.2f%%')
+#plt.title('Pie chart of Tweets by airline sentiment')
+#plt.show()
+
+airline_sentiment = data.groupby(['airline','airline_sentiment']).size().reset_index(name='Total Tweets')
+'''sns.barplot(x='airline',y='Total Tweets',data=airline_sentiment,hue='airline_sentiment')
+plt.title('Sentiment distribution by Airline')
+plt.xlabel('Airline',labelpad=13)
+plt.ylabel('Total Tweets',labelpad=13)
+plt.legend(title='Sentiment')
+plt.show()'''
+
+#WordCloud for positive and negative tweets
+'''
+all_text=''.join(data['text'].dropna())
+wordcloud = WordCloud(width=800,height=400,background_color='white').generate(all_text)
+plt.imshow(wordcloud,interpolation='bicubic')
+plt.title('Wordcloud of tweets')
+plt.axis('off')
+plt.show()
+
+
+
+sns.histplot(data['airline_sentiment_confidence'],kde=True,bins=12,color='grey')
+plt.title('Histplot of Airline Sentiment Confidence')
+plt.xlabel('Sentiment Confidence')
+plt.ylabel('')
+plt.show()
+'''
+
+
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('stopwords')
+
+stop_words = set(stopwords.words('english'))
+
+def process(txt):
+    txt=txt.lower()
+    txt=txt.translate(str.maketrans('','',string.punctuation))
+    tokens=word_tokenize(txt)
+    filtered=[word for word in tokens if word not in stop_words]
+    return ''.join(filtered)
+
+
+data['CleanedText']=data['text'].apply(process)
+#print(data['CleanedText'].head(10))
+
+
+def top_words(data,sentiment,n=10):
+    text = ' '.join(data[data['airline_sentiment']==sentiment]['CleanedText'])
+    words=text.split()
+    return Counter(words).most_common(n)
+
+top_positive = top_words(data,'positive')
+top_negative=top_words(data,'negative')
+top_neutral=top_words(data,'neutral')
+print(top_positive)
+print('-------------------------------')
+print(top_negative)
+print('-----------------------------------')
+print(top_neutral)
+print('------------------------------------')
